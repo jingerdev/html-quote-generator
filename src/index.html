@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="./styles/tailwind.min.css" rel="stylesheet">
+  <link href="./styles/styles.css" rel="stylesheet">
+  <title>Quotes Generator</title>
+  <script src="./js/html2canvas.min.js"></script>
+</head>
+
+<body>
+    <header>
+      <h1 class="text-2xl flex justify-center pt-5">Quotes Generator</h1>
+    </header>
+    <canvas class="hidden" id="canvas" style="border:1px solid #00203FFF; width:660px; margin: auto"></canvas>
+    <main class="m-auto main-container md:w-auto">
+      <div>
+        <div id="quote-container" class="flex flex-wrap content-center text-center justify-center h-96 border mb-10 mt-10">
+          <div class="text-2xl pl-10 pr-10 ">
+            <p id="quotes" class="flex flex-wrap">
+                Here's where the quote will be.
+            </p>
+            <p class="pt-10">
+                &mdash; <span id="author">Unknown</span>
+            </p>
+          </div>
+        </div>
+        <div class="flex justify-center my-10">
+          <button type="button" class="bg-red-500 text-white px-6 py-2 rounded font-medium mx-3 hover:bg-red-400 transition duration-200 each-in-out" onclick="getRandomQuote()">
+              Random Quote
+          </button>
+          <button onclick="downloadImage()" type="button" class="bg-blue-500 text-white px-6 py-2 rounded font-medium mx-3 hover:bg-blue-400 transition duration-200 each-in-out" onclick="changeColor()">
+              Download 
+          </button>
+        </div>
+        <div class="flex flex-wrap justify-center" id="colors"></div>
+      </div>
+    </main>
+    <footer class="flex flex-wrap justify-center m-5">
+        <p>Credits</p>
+    </footer>
+
+    <div id="demo"></div>
+</body>
+<script>
+
+    (function() {
+        const colorScheme = [{
+                foreground: '#ADEFD1FF',
+                background: '#00203FFF'
+            },
+            {
+                foreground: '#D6ED17FF',
+                background: '#606060FF'
+            },
+            {
+                foreground: '#FEE715FF',
+                background: '#101820FF'
+            },
+            {
+                foreground: '#FCF6F5FF',
+                background: '#00203FFF'
+            },
+            {
+                background: '#EEA47FFF',
+                foreground: '#00539CFF'
+            },
+            {
+                background: '#FCF6F5FF',
+                foreground: '#990011FF'
+            },
+            {
+                foreground: '#FCF6F5FF',
+                background: '#89ABE3FF'
+            },
+            {
+                foreground: '#101820FF',
+                background: '#F2AA4CFF'
+            },
+            {
+                foreground: '#C7D3D4FF',
+                background: '#603F83FF'
+            },
+            {
+                foreground: '#343148FF',
+                background: '#D7C49EFF'
+            },
+            {
+                foreground: '#FFFFFFFF',
+                background: '#F95700FF'
+            },
+            {
+                foreground: '#FFD662FF',
+                background: '#00539CFF'
+            },
+            {
+                foreground: '#F1F4FFFF',
+                background: '#A2A2A1FF'
+            },
+            {
+                foreground: '#FCF951FF',
+                background: '#422057FF'
+            },
+        ]
+        const hasItems = localStorage.getItem('quotes')
+        // Fetching quotes data via api
+        //   this is a free public api
+        //   visit type.fit
+        if (!hasItems) {
+            const xhttp = new XMLHttpRequest()
+            xhttp.onload = function() {
+                localStorage.setItem('quotes', this.responseText)
+            }
+            xhttp.open("GET", "https://type.fit/api/quotes")
+            xhttp.send()
+        }
+
+        let colors = document.getElementById('colors')
+
+        // loop here to show colors
+        let section = ""
+        for (let x = 0; x < colorScheme.length; x++) {
+            section += "<button class='m-2 inline-block text-center align-middle' style='background-color:" +
+                colorScheme[x].background + ";color: " + colorScheme[x].foreground +
+                "; width:50px; height:50px' onclick='changeColor(this)'>Aa</button>"
+        }
+        colors.innerHTML = "" + section
+
+    })();
+
+    downloadImage = () => {
+      // Download quote as png file
+      html2canvas(document.getElementById('quote-container')).then((canvas) => {
+        // Get canvas data  
+        var image = canvas.toDataURL();
+        // Creating anchor to be able to trigger
+        //  download of image
+        var anchor = document.createElement( 'a' );
+        anchor.download = 'image.png';
+        anchor.href = image;
+        document.body.appendChild( anchor );
+        anchor.click();  
+        document.body.removeChild( anchor );
+      })
+    }
+
+    changeColor = (btn) => {
+        let bg = btn.style.backgroundColor
+        let fg = btn.style.color
+        // Get quotes container
+        let quotes = document.getElementById('quote-container')
+        if (quotes.style.backgroundColor == btn.style.backgroundColor) {
+            [fg, bg] = [bg, fg]
+        }
+        quotes.style.color = fg
+        quotes.style.backgroundColor = bg
+    }
+
+    getRandomQuote = () => {
+        let quotes = localStorage.getItem('quotes')
+        if (quotes) {
+            quotes = JSON.parse(quotes)
+            let max = quotes.length
+            let min = 1
+            let num = Math.floor(Math.random() * (max - min + 1)) + min
+            document.getElementById('quotes').innerHTML = quotes[num].text
+            document.getElementById('author').innerHTML = quotes[num].author || 'Unknown'
+        } else {
+            console.log('====> no quotes available')
+        }
+    }
+</script>
+
+</html>
